@@ -10,27 +10,69 @@ const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 // --- Helper Functions ---
 const generateQuestion = (level: number) => {
-  const a = Math.floor(Math.random() * (level * 5)) + level * 2;
-  const b = Math.floor(Math.random() * 10) + 1;
-  const c = Math.floor(Math.random() * 5) + 1;
+    const rand = (max: number, min = 1) => Math.floor(Math.random() * (max - min + 1)) + min;
   
-  switch (level % 5) {
-    case 1: // Simple Algebra
-      return { question: `Solve for x: x + ${b} = ${a}`, answer: a - b };
-    case 2: // Percentages
-      const num = (Math.floor(Math.random() * 10) + 1) * 10;
-      const total = (Math.floor(Math.random() * 10) + 5) * 20;
-      return { question: `What is ${num}% of ${total}?`, answer: (num / 100) * total };
-    case 3: // Area of a rectangle
-      return { question: `A rectangle has a length of ${a} and a width of ${b}. What is its area?`, answer: a * b };
-    case 4: // Fractions
-        const d = a * c;
+    let a, b, c, d, question, answer;
+  
+    switch (level) {
+      case 1: // Simple Algebra x + b = a
+        a = rand(20, 5);
+        b = rand(a - 1, 1);
+        return { question: `Solve for x: x + ${b} = ${a}`, answer: a - b };
+      case 2: // Order of Operations (BODMAS/BIDMAS)
+        a = rand(10);
+        b = rand(10);
+        c = rand(5);
+        return { question: `What is ${a} × ${b} + ${c}?`, answer: a * b + c };
+      case 3: // Percentages
+        const percent = rand(19) * 5; // 5, 10, 15... 95
+        b = rand(20, 4) * 5; // Multiple of 5 for easier calculation
+        return { question: `What is ${percent}% of ${b}?`, answer: (percent / 100) * b };
+      case 4: // Fractions of amounts
+        c = rand(8, 2); // Denominator
+        a = rand(10, 2);
+        d = a * c;
         return { question: `What is 1/${c} of ${d}?`, answer: a };
-    case 0: // Multiplication and addition
-    default:
-      return { question: `What is ${a} × ${b} + ${c}?`, answer: a * b + c };
-  }
-};
+      case 5: // Area of a rectangle
+        a = rand(20, 3);
+        b = rand(20, 3);
+        return { question: `A rectangle has a length of ${a}cm and a width of ${b}cm. What is its area in cm²?`, answer: a * b };
+      case 6: // Mean of a set of numbers
+        const nums = [rand(20), rand(20), rand(30), rand(30)];
+        const sum = nums.reduce((acc, val) => acc + val, 0);
+        return { question: `Find the mean of these numbers: ${nums.join(', ')}`, answer: sum / nums.length };
+      case 7: // More complex linear equations (ax + b = c)
+        a = rand(5, 2); // a
+        const x = rand(10, 1); // x
+        b = rand(10, 1); // b
+        c = a * x + b; // c
+        return { question: `Solve for x: ${a}x + ${b} = ${c}`, answer: x };
+      case 8: // Negative numbers
+        a = rand(15, 1);
+        b = rand(15, 1);
+        if (Math.random() > 0.5) {
+          return { question: `What is ${a} - ${a + b}?`, answer: -b };
+        } else {
+          return { question: `What is -${a} + ${b}?`, answer: -a + b };
+        }
+      case 9: // Volume of a cuboid
+        a = rand(10);
+        b = rand(10);
+        c = rand(10);
+        return { question: `A cuboid has dimensions ${a}m, ${b}m, and ${c}m. What is its volume in m³?`, answer: a * b * c };
+      case 10: // Ratio
+        a = rand(10);
+        b = rand(10);
+        const ratioTotal = a+b;
+        const shareAmount = ratioTotal * rand(10, 2);
+        return { question: `Share £${shareAmount} in the ratio ${a}:${b}. What is the larger share?`, answer: Math.max(a,b) * (shareAmount/ratioTotal) }
+      default:
+        // Fallback to level 1 for any unexpected level number
+        a = rand(10, 5);
+        b = rand(a-1, 1);
+        return { question: `Solve for x: x + ${b} = ${a}`, answer: a - b };
+    }
+  };
 
 const getInitialLevelStatus = () => {
     return Array.from({ length: 10 }, (_, i) => ({
@@ -65,23 +107,31 @@ const DadJokeModal = ({ joke, onClose, isLoading }: { joke: string; onClose: () 
   );
 };
 
-const LevelNode = ({ level, unlocked, completed, onSelect }: { level: number; unlocked: boolean; completed: boolean; onSelect: (level: number) => void; }) => (
-  <div className={`level-node-container level-${level}`}>
-    <button
-      className={`level-node ${unlocked ? 'unlocked' : 'locked'}`}
-      onClick={() => unlocked && onSelect(level)}
-      disabled={!unlocked}
-      aria-label={`Level ${level}`}
-    >
-      {unlocked ? (
-        <span className="level-number">{level}</span>
-      ) : (
-        <span className="lock-icon">🔒</span>
-      )}
-      {completed && <span className="star-icon">⭐</span>}
-    </button>
-  </div>
-);
+const LevelNode = ({ level, unlocked, completed, onSelect }: { level: number; unlocked: boolean; completed: boolean; onSelect: (level: number) => void; }) => {
+    const levelIcons = ['⭕', '🔼', '⭐', '☂️'];
+    const icon = levelIcons[(level - 1) % levelIcons.length];
+
+    return (
+        <div className={`level-node-container level-${level}`}>
+            <button
+                className={`level-node ${unlocked ? 'unlocked' : 'locked'}`}
+                onClick={() => unlocked && onSelect(level)}
+                disabled={!unlocked}
+                aria-label={`Level ${level}`}
+            >
+                {unlocked ? (
+                    <>
+                        <span className="level-icon">{icon}</span>
+                        <span className="level-number-small">{level}</span>
+                    </>
+                ) : (
+                    <span className="lock-icon">🔒</span>
+                )}
+                {completed && <span className="completion-icon">🏆</span>}
+            </button>
+        </div>
+    );
+};
 
 const StartScreen = ({ onStart }: { onStart: () => void }) => (
     <div className="app-container">
@@ -139,6 +189,14 @@ const Game = ({ level, onBack, onLevelComplete }: { level: number; onBack: () =>
   const [showJokeModal, setShowJokeModal] = useState(false);
   const [dadJoke, setDadJoke] = useState('');
   const [isJokeLoading, setIsJokeLoading] = useState(false);
+  const [toldJokes, setToldJokes] = useState<string[]>([]);
+
+  const levelThemes = [
+    'The First Step', 'The Dalgona Challenge', 'Tug of War', 'The Marble Game',
+    'Glass Bridge', 'The Circle Trial', 'The Triangle Trial', 'The Star Trial',
+    'The Squid Game', 'The Final Boss'
+  ];
+  const levelName = levelThemes[level - 1] || `Level ${level}`;
 
   useEffect(() => {
     const newQuestions = Array.from({ length: 10 }, () => generateQuestion(level));
@@ -149,11 +207,17 @@ const Game = ({ level, onBack, onLevelComplete }: { level: number; onBack: () =>
     setIsJokeLoading(true);
     setDadJoke('');
     try {
+      const instruction = toldJokes.length > 0
+        ? `Tell me a ridiculously cringy dad joke. Please don't repeat any of these: ${toldJokes.join('; ')}`
+        : 'Tell me a ridiculously cringy dad joke.';
+      
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: 'Tell me a ridiculously cringy dad joke.',
+        contents: instruction,
       });
-      setDadJoke(response.text);
+      const newJoke = response.text;
+      setDadJoke(newJoke);
+      setToldJokes(prevJokes => [...prevJokes, newJoke]);
     } catch (error) {
       console.error("Error fetching dad joke:", error);
       setDadJoke("I wanted to tell a construction joke, but I'm still working on it."); // Fallback joke
@@ -184,7 +248,7 @@ const Game = ({ level, onBack, onLevelComplete }: { level: number; onBack: () =>
     const userAnswer = parseFloat(inputValue);
     const correctAnswer = questions[currentQuestionIndex].answer;
 
-    if (!isNaN(userAnswer) && userAnswer === correctAnswer) {
+    if (!isNaN(userAnswer) && userAnswer.toFixed(2) === correctAnswer.toFixed(2)) {
       setScore(score + 1);
       setFeedback('correct');
       // If it's the last question, handle level completion directly, otherwise show joke.
@@ -221,7 +285,10 @@ const Game = ({ level, onBack, onLevelComplete }: { level: number; onBack: () =>
       )}
       <div className="game-header roblox-ui">
         <button onClick={onBack} className="roblox-button back-button">{'< Map'}</button>
-        <h2>Level {level}</h2>
+        <div className="level-title-container">
+          <h2>Level {level}</h2>
+          <span className="level-subtitle">{levelName}</span>
+        </div>
         <div className="score">Score: {score} / 10</div>
       </div>
 
