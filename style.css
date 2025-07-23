@@ -10,6 +10,8 @@
   --font-family: 'Fredoka One', cursive;
   --background-color: #f0f8ff;
   --path-color: rgba(0, 0, 0, 0.1);
+  --squid-pink: #e8125c;
+  --squid-teal: #004547;
 }
 
 body, html {
@@ -34,6 +36,7 @@ body, html {
   padding: 20px;
   box-sizing: border-box;
   animation: fade-in 0.5s ease-in-out;
+  transition: background-color 0.3s ease;
 }
 
 @keyframes fade-in {
@@ -151,18 +154,36 @@ body, html {
   cursor: not-allowed;
 }
 
+.level-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+}
+
+.level-number-small {
+    position: absolute;
+    bottom: 2px;
+    right: 5px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--roblox-black);
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+    padding: 0 3px;
+}
+
 .lock-icon {
   font-size: 2rem;
 }
 
-.star-icon {
+.completion-icon {
   position: absolute;
-  top: -15px;
-  right: -15px;
-  font-size: 2rem;
+  top: -20px;
+  right: -20px;
+  font-size: 2.5rem;
   color: var(--roblox-yellow);
   text-shadow: 2px 2px 0 var(--roblox-black);
   animation: pulse 1.5s infinite;
+  transform-origin: bottom;
 }
 
 @keyframes pulse {
@@ -247,9 +268,24 @@ body, html {
 }
 
 
-/* --- Game View --- */
+/* --- Game View & Squid Game Theme --- */
 .game-view {
   justify-content: flex-start;
+  background-color: var(--squid-teal);
+}
+
+.game-view .game-header {
+  border-color: var(--squid-pink);
+  box-shadow: 0 8px 0px #b10e46; /* Darker pink */
+}
+
+.game-view .game-card {
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  border-color: var(--squid-pink);
+  box-shadow: 0 8px 0px #b10e46; /* Darker pink */
 }
 
 .game-header {
@@ -261,15 +297,25 @@ body, html {
   margin-bottom: 20px;
   padding: 10px 20px;
 }
-.score {
-    font-size: 1.5rem;
+
+.level-title-container {
+    display: flex;
+    flex-direction: column;
 }
 
-.game-card {
-  width: 100%;
-  max-width: 600px;
-  position: relative;
-  animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+.game-header h2 {
+    margin: 0;
+    line-height: 1;
+}
+
+.game-header .level-subtitle {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: normal;
+}
+
+.score {
+    font-size: 1.5rem;
 }
 
 @keyframes pop-in {
@@ -312,7 +358,7 @@ body, html {
 
 .progress-bar {
     height: 100%;
-    background-color: var(--roblox-green);
+    background-color: var(--squid-pink);
     border-radius: 8px 0 0 8px;
     transition: width 0.3s ease-in-out;
 }
