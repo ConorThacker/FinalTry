@@ -1,0 +1,391 @@
+:root {
+  --roblox-blue: #00a2ff;
+  --roblox-green: #a3ff00;
+  --roblox-yellow: #fde800;
+  --roblox-red: #ff4747;
+  --roblox-dark-grey: #a3a3a3;
+  --roblox-light-grey: #cccccc;
+  --roblox-white: #ffffff;
+  --roblox-black: #232323;
+  --font-family: 'Fredoka One', cursive;
+  --background-color: #f0f8ff;
+  --path-color: rgba(0, 0, 0, 0.1);
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--background-color);
+  overflow: hidden;
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: fade-in 0.5s ease-in-out;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.main-title {
+  font-size: 3.5rem;
+  color: var(--roblox-blue);
+  text-shadow: 4px 4px 0px var(--roblox-black);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* --- Start & Congrats Screen --- */
+.start-card {
+    width: 100%;
+    max-width: 500px;
+    animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.start-card h2 {
+    font-size: 2rem;
+    margin-top: 0;
+}
+
+.start-card p {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.start-button {
+    font-size: 1.8rem !important;
+    padding: 15px 30px !important;
+    background-color: var(--roblox-green) !important;
+}
+
+.congrats-icon {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 20px;
+    animation: pulse 1.5s infinite;
+}
+
+
+/* --- Level Map --- */
+.map-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: 70vh;
+  background: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(to bottom, #87ceeb, #ffffff);
+  border-radius: 20px;
+  border: 5px solid var(--roblox-black);
+  box-shadow: 0 10px 0 var(--roblox-dark-grey);
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.map-path {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  width: 20px;
+  height: 150%;
+  border: 5px dashed var(--path-color);
+  border-radius: 10px;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.level-node-container {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  z-index: 2;
+}
+
+.level-node {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 4px solid var(--roblox-black);
+  font-family: var(--font-family);
+  font-size: 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.level-node.unlocked {
+  background-color: var(--roblox-yellow);
+  box-shadow: 0 5px 0 var(--roblox-dark-grey);
+}
+
+.level-node.unlocked:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 0 var(--roblox-dark-grey);
+}
+
+.level-node.unlocked:active {
+  transform: translateY(2px);
+  box-shadow: 0 3px 0 var(--roblox-dark-grey);
+}
+
+.level-node.locked {
+  background-color: var(--roblox-light-grey);
+  color: var(--roblox-dark-grey);
+  cursor: not-allowed;
+}
+
+.lock-icon {
+  font-size: 2rem;
+}
+
+.star-icon {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  font-size: 2rem;
+  color: var(--roblox-yellow);
+  text-shadow: 2px 2px 0 var(--roblox-black);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Level positions */
+.level-1 { top: 5%; left: 30%; }
+.level-2 { top: 15%; left: 60%; }
+.level-3 { top: 25%; left: 30%; }
+.level-4 { top: 35%; left: 60%; }
+.level-5 { top: 45%; left: 30%; }
+.level-6 { top: 55%; left: 60%; }
+.level-7 { top: 65%; left: 30%; }
+.level-8 { top: 75%; left: 60%; }
+.level-9 { top: 85%; left: 30%; }
+.level-10 { top: 95%; left: 60%; }
+
+
+/* --- Roblox UI Style --- */
+.roblox-ui {
+  background-color: var(--roblox-white);
+  border: 4px solid var(--roblox-black);
+  border-radius: 15px;
+  box-shadow: 0 8px 0px var(--roblox-dark-grey);
+  padding: 20px;
+  text-align: center;
+}
+
+.roblox-button {
+  background-color: var(--roblox-blue);
+  color: var(--roblox-white);
+  border: 4px solid var(--roblox-black);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-family: var(--font-family);
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 5px 0px var(--roblox-dark-grey);
+  transition: all 0.1s ease-in-out;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+}
+
+.roblox-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0px var(--roblox-dark-grey);
+}
+
+.roblox-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 3px 0px var(--roblox-dark-grey);
+}
+
+.roblox-button:disabled {
+    background-color: var(--roblox-light-grey);
+    cursor: not-allowed;
+    box-shadow: 0 5px 0px #999;
+}
+
+.roblox-input {
+  width: calc(100% - 40px);
+  padding: 15px;
+  border-radius: 10px;
+  border: 4px solid var(--roblox-black);
+  font-family: var(--font-family);
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 20px 0;
+  box-sizing: border-box;
+}
+
+.roblox-input.correct {
+  background-color: #e8fce8;
+  border-color: var(--roblox-green);
+}
+
+.roblox-input.incorrect {
+  background-color: #feecec;
+  border-color: var(--roblox-red);
+}
+
+
+/* --- Game View --- */
+.game-view {
+  justify-content: flex-start;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+  padding: 10px 20px;
+}
+.score {
+    font-size: 1.5rem;
+}
+
+.game-card {
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes pop-in {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.question-number {
+    color: var(--roblox-dark-grey);
+    font-size: 1rem;
+}
+
+.question-text {
+  font-size: 2rem;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shake {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.progress-bar-container {
+    height: 15px;
+    background-color: var(--roblox-light-grey);
+    border-radius: 10px;
+    border: 2px solid var(--roblox-black);
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--roblox-green);
+    border-radius: 8px 0 0 8px;
+    transition: width 0.3s ease-in-out;
+}
+
+/* --- Dad Joke Modal --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 500px;
+  animation: pop-in 0.3s;
+}
+
+.joke-box {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  border: 3px dashed var(--roblox-light-grey);
+}
+
+/* Spinner */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.spinner {
+  border: 6px solid var(--roblox-light-grey);
+  border-top: 6px solid var(--roblox-blue);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-title {
+        font-size: 2.5rem;
+    }
+    .level-node-container {
+        width: 50px;
+        height: 50px;
+    }
+    .level-node {
+        font-size: 1.5rem;
+    }
+    .map-container {
+        height: 80vh;
+    }
+}
