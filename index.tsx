@@ -180,7 +180,15 @@ const LevelSelect = ({ levels, onSelectLevel }: { levels: { unlocked: boolean; c
   );
 };
 
-const Game = ({ level, onBack, onLevelComplete }: { level: number; onBack: () => void; onLevelComplete: () => void; }) => {
+interface GameProps {
+  level: number;
+  onBack: () => void;
+  onLevelComplete: () => void;
+  toldJokes: string[];
+  onNewJoke: (joke: string) => void;
+}
+
+const Game = ({ level, onBack, onLevelComplete, toldJokes, onNewJoke }: GameProps) => {
   const [questions, setQuestions] = useState<{ question: string; answer: number; }[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -189,8 +197,7 @@ const Game = ({ level, onBack, onLevelComplete }: { level: number; onBack: () =>
   const [showJokeModal, setShowJokeModal] = useState(false);
   const [dadJoke, setDadJoke] = useState('');
   const [isJokeLoading, setIsJokeLoading] = useState(false);
-  const [toldJokes, setToldJokes] = useState<string[]>([]);
-
+  
   const levelThemes = [
     'The First Step', 'The Dalgona Challenge', 'Tug of War', 'The Marble Game',
     'Glass Bridge', 'The Circle Trial', 'The Triangle Trial', 'The Star Trial',
@@ -208,7 +215,7 @@ const Game = ({ level, onBack, onLevelComplete }: { level: number; onBack: () =>
     setDadJoke('');
     try {
       const instruction = toldJokes.length > 0
-        ? `Tell me a ridiculously cringy dad joke. Please don't repeat any of these: ${toldJokes.join('; ')}`
+        ? `Tell me a ridiculously cringy dad joke. Please do not repeat any of these: ${toldJokes.join('; ')}`
         : 'Tell me a ridiculously cringy dad joke.';
       
       const response = await ai.models.generateContent({
@@ -217,7 +224,7 @@ const Game = ({ level, onBack, onLevelComplete }: { level: number; onBack: () =>
       });
       const newJoke = response.text;
       setDadJoke(newJoke);
-      setToldJokes(prevJokes => [...prevJokes, newJoke]);
+      onNewJoke(newJoke);
     } catch (error) {
       console.error("Error fetching dad joke:", error);
       setDadJoke("I wanted to tell a construction joke, but I'm still working on it."); // Fallback joke
@@ -325,7 +332,6 @@ const App = () => {
       const savedStatus = localStorage.getItem('mathsGameLevelStatus');
       if (savedStatus) {
         const parsed = JSON.parse(savedStatus);
-        // Basic validation to ensure it's an array of the correct length
         if(Array.isArray(parsed) && parsed.length === 10) {
           return parsed;
         }
@@ -336,6 +342,21 @@ const App = () => {
     return getInitialLevelStatus();
   });
 
+  const [toldJokes, setToldJokes] = useState<string[]>(() => {
+    try {
+        const savedJokes = localStorage.getItem('mathsGameToldJokes');
+        if (savedJokes) {
+            const parsed = JSON.parse(savedJokes);
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
+        }
+    } catch (error) {
+        console.error("Could not parse told jokes from localStorage", error);
+    }
+    return [];
+  });
+
   useEffect(() => {
       try {
         localStorage.setItem('mathsGameLevelStatus', JSON.stringify(levelStatus));
@@ -343,6 +364,20 @@ const App = () => {
         console.error("Could not save level status to localStorage", error);
       }
   }, [levelStatus]);
+
+  useEffect(() => {
+    try {
+        localStorage.setItem('mathsGameToldJokes', JSON.stringify(toldJokes));
+    } catch (error) {
+        console.error("Could not save told jokes to localStorage", error);
+    }
+  }, [toldJokes]);
+
+  const handleNewJoke = (joke: string) => {
+    if (!toldJokes.includes(joke)) {
+      setToldJokes(prevJokes => [...prevJokes, joke]);
+    }
+  };
   
   const handleStartGame = () => {
     const allCompleted = levelStatus.every(l => l.completed);
@@ -367,7 +402,6 @@ const App = () => {
     if (selectedLevel === null) return;
 
     if (selectedLevel === 10) {
-        // Final level completed
         const newLevelStatus = [...levelStatus];
         newLevelStatus[selectedLevel - 1].completed = true;
         setLevelStatus(newLevelStatus);
@@ -387,6 +421,8 @@ const App = () => {
   const handlePlayAgain = () => {
       const initialStatus = getInitialLevelStatus();
       setLevelStatus(initialStatus);
+      setToldJokes([]);
+      localStorage.removeItem('mathsGameToldJokes');
       setCurrentScreen('levelSelect');
   }
 
@@ -397,7 +433,15 @@ const App = () => {
         case 'levelSelect':
             return <LevelSelect levels={levelStatus} onSelectLevel={handleSelectLevel} />;
         case 'game':
-            return selectedLevel !== null && <Game level={selectedLevel} onBack={handleBackToMap} onLevelComplete={handleLevelComplete}/>;
+            return selectedLevel !== null && (
+              <Game 
+                level={selectedLevel} 
+                onBack={handleBackToMap} 
+                onLevelComplete={handleLevelComplete}
+                toldJokes={toldJokes}
+                onNewJoke={handleNewJoke}
+              />
+            );
         case 'congratulations':
             return <CongratulationsScreen onPlayAgain={handlePlayAgain} />;
         default:
