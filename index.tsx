@@ -221,6 +221,9 @@ const Game = ({ level, onBack, onLevelComplete, toldJokes, onNewJoke }: GameProp
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: instruction,
+        config: {
+          temperature: 1.0,
+        }
       });
       const newJoke = response.text;
       setDadJoke(newJoke);
@@ -239,14 +242,6 @@ const Game = ({ level, onBack, onLevelComplete, toldJokes, onNewJoke }: GameProp
     setFeedback('');
     if (currentQuestionIndex + 1 < questions.length) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-        // This was the last question. Check score after this correct answer.
-        if (score + 1 === 10) { 
-            onLevelComplete();
-        } else {
-            alert(`Level finished! Your score: ${score + 1}/10. You need 100% to unlock the next level. Try again!`);
-            onBack();
-        }
     }
   };
 
@@ -256,21 +251,31 @@ const Game = ({ level, onBack, onLevelComplete, toldJokes, onNewJoke }: GameProp
     const correctAnswer = questions[currentQuestionIndex].answer;
 
     if (!isNaN(userAnswer) && userAnswer.toFixed(2) === correctAnswer.toFixed(2)) {
-      setScore(score + 1);
+      // Correct answer
+      const newScore = score + 1;
+      setScore(newScore);
       setFeedback('correct');
-      // If it's the last question, handle level completion directly, otherwise show joke.
-      if (currentQuestionIndex + 1 === questions.length) {
-        handleNextQuestion();
+      
+      if (newScore === 10) {
+        // Just completed the last question successfully
+        // Give a small delay to show the "correct" feedback before completing.
+        setTimeout(() => {
+            onLevelComplete();
+        }, 500); 
       } else {
+        // Not the last question, show a joke.
         setShowJokeModal(true);
         fetchDadJoke();
       }
     } else {
+      // Incorrect answer
       setFeedback('incorrect');
       document.querySelector('.game-card')?.classList.add('shake');
+      
       setTimeout(() => {
-        setFeedback('');
+        alert(`Incorrect! You need a perfect score (10/10) to pass the level. Please try again.`);
         document.querySelector('.game-card')?.classList.remove('shake');
+        onBack();
       }, 500);
     }
   };
